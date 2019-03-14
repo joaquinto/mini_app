@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <title>Mini App</title>
+
+    <style>
+
+      body {
+        margin: 0px;
+        overflow: hidden;
+        background: lavender;
+      }
+      h2.header {
+        text-align: center;
+        margin-bottom: 70px;
+      }
+
+      div.user-photo {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        margin: 1em auto;
+        background: #fff;
+        overflow: hidden;
+      }
+      div img {
+        display: block;
+      }
+
+      div.details {
+        font-size: 2.3em;
+        margin: 2.5em 0.2em 0.2em 0.2em;
+        min-height: 6em;
+        background: #6200ee;
+        color: #fff;
+        padding: 1.1em;
+      }
+
+      footer {
+        width: calc(100% - 2em);
+        z-index: 500;
+        position: absolute;
+        bottom: 0;
+        overflow: hidden;
+        display: flex;
+        justify-content: space-between;
+        margin: 0 1em;
+        color: #fff;
+      }
+
+    </style>
+  </head>
+  <body>
+
+    <h2 class="header">Jonathan</h2>
+    <div class="user-photo mdc-elevation--z3">
+      <img src="https://via.placeholder.com/150/09f/fff.png" alt="user photo">
+    </div>
+    <div class="details mdc-elevation--z3"></div>
+    <div class="messages"></div>
+    <footer>
+      <button id="btn-address" class="mdc-icon-button material-icons">location_city</button>
+      <button id="btn-phone" class="mdc-icon-button material-icons">phone</button>
+      <button id="btn-birthdate" class="mdc-icon-button material-icons">calendar_today</button>
+    </footer>
+
+    <script>
+
+      const notify = (msg) => {
+        const toastr = document.querySelector('.messages');
+        if(!toastr) return;
+
+        toastr.textContent = msg;
+        if(!toastr.classList.contains('on')) {
+          toastr.classList.add('on');
+        }
+      };
+
+      const clearNotice = () => {
+        const toastr = document.querySelector('.messages');
+        if(!toastr) return;
+
+        toastr.textContent = '';
+        toastr.classList.remove('on');
+      };
+
+      const displayUserPhotoAndName = (data) => {
+        if(!data) return;
+        const {results} = data;
+		    const [profile] = results;
+
+        const image = document.querySelector("img");
+        image.src = profile.picture.large;
+
+        const full_name = profile.name.title + " " + profile.name.last + " " + profile.name.first;
+        const name = document.querySelector(".header");
+        name.innerHTML = full_name;
+
+        displayExtraUserInfo(profile)
+
+        clearNotice();
+      };
+
+      const displayBirthdate = ({dob}) => {
+        const details = document.querySelector(".details");
+        details.innerHTML = dob.age + " years old";
+      };
+
+      const displayPhone = ({phone, cell}) => {
+       	const details = document.querySelector(".details");
+        details.innerHTML = phone + " / " + cell;
+      };
+
+      const displayAddress = ({location}) => {
+        const details = document.querySelector(".details");
+        details.innerHTML = location.street + ", " + location.city + ", " + location.state;
+      };
+
+      const displayExtraUserInfo = (params) => {
+      	const birthdate = document.querySelector("#btn-birthdate");
+      	birthdate.addEventListener("click", () => {
+          displayBirthdate(params);
+        });
+
+        const phone = document.querySelector("#btn-phone");
+      	phone.addEventListener("click", () => {
+          displayPhone(params);
+        });
+
+        const calendar = document.querySelector("#btn-address");
+      	calendar.addEventListener("click", () => {
+          displayAddress(params);
+        });
+      };
+
+      const getAUserProfile = () => {
+        const api = 'https://randomuser.me/api/';
+
+        // make API call here
+        fetch(api).then(res => res.json())
+        .then(data => displayUserPhotoAndName(data))
+        .catch(err => console.log(err));
+
+        notify(`requesting profile data ...`);
+      };
+
+      const startApp = () => {
+        // invoke the getAUserProfile here
+        getAUserProfile();
+      };
+
+      startApp();
+    </script>
+  </body>
+</html>
